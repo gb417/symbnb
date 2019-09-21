@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>
+        SymBNB - {% block title %}Welcome!{% endblock %}
+    </title>
+    {% block stylesheets %}
+        <link href="{{ asset('css/sketchy.bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    {% endblock %}
+</head>
+<body>
+{% include 'partials/header.html.twig' %}
+
+{% block body %}{% endblock %}
+
+{% include 'partials/footer.html.twig' %}
+
+<script src="{{ asset('js/jquery-3.3.1.slim.min.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

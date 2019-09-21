@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% set a = ad.author %}
+
+{% block body %}
+    <div class="annonce-title" style="background-image: url({{ ad.coverImage }})">
+        <div class="container">
+            <h1>{{ ad.title }}</h1>
+            <p>{{ ad.introduction }}</p>
+            <p class="h2">
+                <strong>{{ ad.rooms }} chambre(s)</strong> pour <strong>{{ ad.price }}&euro;</strong> par nuit
+            </p>
+            <a href="{{ path('booking_create', {'slug': ad.slug}) }}" class="btn btn-primary">Réserver</a>
+            {% if app.user and app.user == ad.author %}
+                <a href="{{ path('ads_update', {'slug': ad.slug}) }}" class="btn btn-secondary">Modifier l'annonce</a>
+                <a href="{{ path('ads_delete', {'slug': ad.slug}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer l\'annonce ?')" class="btn btn-danger">Supprimer l'annonce</a>
+            {%  endif %}
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                {{ ad.content | raw }}
+
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        {% for image in ad.images %}
+                            <li data-target="#carouselExampleIndicators" data-slide-to="{{ loop.index0 }}"
+                                class="{% if loop.first %}active{% endif %}"></li>
+                        {% endfor %}
+                    </ol>
+                    <div class="carousel-inner">
+                        {% for image in ad.images %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <img class="d-block w-100" src="{{ image.url }}" alt="First slide">
+                                <div class="carousel-caption d-block d-md-block">
+                                    <h5>
+                                        {{ ad.title }}
+                                    </h5>
+                                    <p>
+                                        {{ image.caption }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+
+            </div>
+            <div class="col">
+                <div class="row">
+                    <div class="col-3">
+                        <a href="{{ path('user_read', {'slug': a.slug}) }}">
+                            <img class="avatar avatar-medium" src="{{ a.avatar }}" alt="Avatar de {{ a.fullName }}">
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ path('user_read', {'slug': a.slug}) }}">
+                            <h3>{{ a.fullName }}</h3>
+                        </a>
+                        <span class="badge badge-primary">{{ a.ads | length }} annonces</span>
+                    </div>
+                </div>
+                {{ a.description | raw }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
