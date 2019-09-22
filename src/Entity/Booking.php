@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BookingRepository")
@@ -31,11 +32,13 @@ class Booking
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\Date(message="Attention, la date d'arrivée doit être au bon format !")
      */
     private $startDate;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\Date(message="Attention, la date de départ doit être au bon format !")
      */
     private $endDate;
 
@@ -53,6 +56,78 @@ class Booking
      * @ORM\Column(type="text", nullable=true)
      */
     private $comment;
+
+
+    /**
+     * Callback appelé à chaque fois qu'on créé une réservation
+     *
+     * @ORM\PrePersist()
+     *
+     */
+    public function prePersist()
+    {
+        if(empty($this->createdAt))
+        {
+            $this->createdAt = new \DateTime();
+        }
+
+        if(empty($this->amount))
+        {
+            $this->amount = $this->ad->getPrice() * $this->getDuration();
+        }
+    }
+
+    public function getDuration()
+    {
+        $diff = $this->endDate->diff($this->startDate);
+        return $diff->days;
+    }
+
+
+    public function isBookableDates()
+    {
+        // Les jours déjà réservés
+        $notAvailableDays=$this->ad->getNotAvailableDays();
+        // Les jours à réserver
+        $bookingDays = $this->getDays();
+
+        $formatDay = function($day)
+        {
+            return $day->format('Y-m-d');
+        };
+
+        $days = array_map($formatDay, $bookingDays);
+        $notAvailable = array_map($formatDay, $notAvailableDays);
+
+        // parcours du tab $days
+        foreach ($days as $day) {
+            if(array_search($day, $notAvailable) !== false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Permet de récupérer un tableau des journées qui correspondent à ma réservation
+     *
+     * @return array Un tableau d'objets DateTime représentant les jours de la réservation
+     */
+    public function getDays()
+    {
+        $resultat = range(
+            $this->getStartDate()->getTimestamp(),
+            $this->getEndDate()->getTimestamp(),
+            24*60*60
+        );
+
+        $days = array_map(function($dayTimestamp){
+            return new \DateTime(date('Y-m-d', $dayTimestamp));
+        }, $resultat);
+
+        return $days;
+    }
 
     public function getId(): ?int
     {
