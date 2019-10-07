@@ -161,4 +161,15 @@ class AccountController extends AbstractController
         $this->data['user'] = $this->getUser();
         return $this->render('user/index.html.twig', $this->data);
     }
+
+    /**
+     * Permet d'afficher la liste des réservations faites pas l'utilisateur
+     *
+     * @Route("/account/bookings", name="account_bookings")
+     * @return Response
+     */
+    public function bookings()
+    {
+        return $this->render('booking/bookings.html.twig');
+    }
 }
